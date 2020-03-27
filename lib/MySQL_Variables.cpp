@@ -28,6 +28,7 @@ MySQL_Variables::MySQL_Variables(MySQL_Session* _session) : session(_session), i
 			case SQL_NET_WRITE_TIMEOUT:
 			case SQL_MAX_JOIN_SIZE:
 			case SQL_WSREP_SYNC_WAIT:
+			case SQL_FOREIGN_KEY_CHECKS:
 				verifiers[i] = ::verify_variable;
 				updaters[i] = update_server_variable;
 				break;
