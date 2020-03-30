@@ -45,8 +45,9 @@ void Variable::fill_server_internal_session(json &j, int conn_num, int idx) {
 		j["backends"][conn_num]["conn"][mysql_tracked_variables[idx].internal_variable_name] = std::string((ci && ci->name)?ci->name:"");
 	} else if (idx == SQL_LOG_BIN) {
 		if (!value)
-			value = mysql_tracked_variables[idx].default_value;
-		j["backends"][conn_num]["conn"][mysql_tracked_variables[idx].internal_variable_name] = std::string(!strcmp("1",value)?"ON":"OFF");
+			j["backends"][conn_num]["conn"][mysql_tracked_variables[idx].internal_variable_name] = mysql_tracked_variables[idx].default_value;
+		else
+			j["backends"][conn_num]["conn"][mysql_tracked_variables[idx].internal_variable_name] = std::string(!strcmp("1",value)?"ON":"OFF");
 	} else {
 		j["backends"][conn_num]["conn"][mysql_tracked_variables[idx].internal_variable_name] = std::string(value?value:"");
 	}
@@ -56,7 +57,10 @@ void Variable::fill_client_internal_session(json &j, int idx) {
 	if (idx == SQL_CHARACTER_SET_RESULTS || idx == SQL_CHARACTER_SET_CONNECTION ||
 			idx == SQL_CHARACTER_SET_CLIENT || idx == SQL_CHARACTER_SET_DATABASE) {
 		const MARIADB_CHARSET_INFO *ci = NULL;
-		ci = proxysql_find_charset_nr(atoi(value));
+		if (!value)
+			ci = proxysql_find_charset_name(mysql_tracked_variables[idx].default_value);
+		else
+			ci = proxysql_find_charset_nr(atoi(value));
 		if (!ci) {
 			if (idx == SQL_CHARACTER_SET_RESULTS && (!strcasecmp("NULL", value) || !strcasecmp("binary", value))) {
 				j["conn"][mysql_tracked_variables[idx].internal_variable_name] = (ci && ci->csname)?ci->csname:"";
@@ -71,14 +75,20 @@ void Variable::fill_client_internal_session(json &j, int idx) {
 
 	} else if (idx == SQL_COLLATION_CONNECTION) {
 		const MARIADB_CHARSET_INFO *ci = NULL;
-		ci = proxysql_find_charset_nr(atoi(value));
+		if (!value)
+			ci = proxysql_find_charset_collate(mysql_tracked_variables[idx].default_value);
+		else
+			ci = proxysql_find_charset_nr(atoi(value));
 		if (!ci) {
 			assert(0);
 		}
 
 		j["conn"][mysql_tracked_variables[idx].internal_variable_name] = (ci && ci->name)?ci->name:"";
 	}  else if (idx == SQL_LOG_BIN) {
-		j["conn"][mysql_tracked_variables[idx].internal_variable_name] = !strcmp("1", value)?"ON":"OFF";
+		if (!value)
+			j["conn"][mysql_tracked_variables[idx].internal_variable_name] = mysql_tracked_variables[idx].default_value;
+		else
+			j["conn"][mysql_tracked_variables[idx].internal_variable_name] = !strcmp("1", value)?"ON":"OFF";
 	} else {
 		j["conn"][mysql_tracked_variables[idx].internal_variable_name] = value?value:"";
 	}

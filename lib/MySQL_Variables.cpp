@@ -348,7 +348,7 @@ bool update_server_variable(MySQL_Session* session, int idx, int &_rc) {
 }
 
 inline bool verify_variable(MySQL_Session* session, int idx, uint32_t client_hash, uint32_t server_hash) {
-	if (client_hash != server_hash) {
+	if (client_hash && client_hash != server_hash) {
 		switch(session->status) { // this switch can be replaced with a simple previous_status.push(status), but it is here for readibility
 			case PROCESSING_QUERY:
 				session->previous_status.push(PROCESSING_QUERY);
