@@ -129,15 +129,6 @@ bool MySQL_Variables::client_set_value(int idx, const std::string& value) {
 			}
 
 		}
-		// SET NAMES during handshake etc.
-		else if (value == "3") {
-			if (session->mysql_variables->server_get_value(SQL_CHARACTER_SET)) {
-				session->mysql_variables->client_set_value(SQL_CHARACTER_SET_RESULTS, session->mysql_variables->server_get_value(SQL_CHARACTER_SET));
-				session->mysql_variables->client_set_value(SQL_CHARACTER_SET_CLIENT, session->mysql_variables->server_get_value(SQL_CHARACTER_SET));
-				session->mysql_variables->client_set_value(SQL_CHARACTER_SET_CONNECTION, session->mysql_variables->server_get_value(SQL_CHARACTER_SET));
-				session->mysql_variables->client_set_value(SQL_COLLATION_CONNECTION, session->mysql_variables->server_get_value(SQL_CHARACTER_SET));
-			}
-		}
 	}
 
 	session->client_myds->myconn->var_hash[idx] = SpookyHash::Hash32(value.c_str(),strlen(value.c_str()),10);
