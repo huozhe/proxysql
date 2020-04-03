@@ -31,7 +31,10 @@ bool process_on_off(MySQL_Session& session, enum variable_name var, const std::s
 	}
 }
 
-const std::map<std::string, std::function<bool(MySQL_Session& session, enum variable_name, const std::string&, bool*)>> MySQL_Variables::functions = { std::make_pair(std::string("foreign_key_checks"), process_on_off) };
+const std::map<std::string, Query_Handler> MySQL_Variables::functions = {
+std::make_pair(std::string("foreign_key_checks"), Query_Handler(SQL_FOREIGN_KEY_CHECKS, process_on_off)),
+std::make_pair(std::string("wsrep_sync_wait"), Query_Handler(SQL_WSREP_SYNC_WAIT, process_on_off))
+};
 
 MySQL_Variables::MySQL_Variables(MySQL_Session* _session) : session(_session), is_connected_to_backend(false) {
 	assert(_session);

@@ -4838,25 +4838,6 @@ bool MySQL_Session::handler___status_WAITING_CLIENT_DATA___STATE_SLEEP___MYSQL_C
 							proxy_debug(PROXY_DEBUG_MYSQL_COM, 8, "Changing connection SQL Mode to %s\n", value1.c_str());
 						}
 						exit_after_SetParse = true;
-					} else if (var == "foreign_key_checks") {
-						auto f = MySQL_Variables::functions.find(var);
-						if (f != MySQL_Variables::functions.end())
-							(f->second)(*this, SQL_FOREIGN_KEY_CHECKS, *values, lock_hostgroup);
-					} else if (var == "wsrep_sync_wait") {
-						std::string value1 = *values;
-						if ((strcasecmp(value1.c_str(),"0")==0) || (strcasecmp(value1.c_str(),"1")==0)) {
-							proxy_debug(PROXY_DEBUG_MYSQL_COM, 7, "Processing SET wsrep_sync_wait value %s\n", value1.c_str());
-							uint32_t wsrep_sync_wait_int=SpookyHash::Hash32(value1.c_str(),value1.length(),10);
-							if (mysql_variables->client_get_hash(SQL_WSREP_SYNC_WAIT) != wsrep_sync_wait_int) {
-								if (!mysql_variables->client_set_value(SQL_WSREP_SYNC_WAIT, value1.c_str()))
-									return false;
-								proxy_debug(PROXY_DEBUG_MYSQL_COM, 5, "Changing connection wsrep_sync_wait to %s\n", value1.c_str());
-							}
-							exit_after_SetParse = true;
-						} else {
-							unable_to_parse_set_statement(lock_hostgroup);
-							return false;
-						}
 					} else if ((var == "sql_auto_is_null") || (var == "sql_safe_updates")) {
 						std::string value1 = *values;
 						proxy_debug(PROXY_DEBUG_MYSQL_COM, 5, "Processing SET %s value %s\n", var.c_str(), value1.c_str());
@@ -5168,6 +5149,16 @@ bool MySQL_Session::handler___status_WAITING_CLIENT_DATA___STATE_SLEEP___MYSQL_C
 						}
 						exit_after_SetParse = true;
 					} else {
+						auto f = MySQL_Variables::functions.find(var);
+						if (f != MySQL_Variables::functions.end()) {
+							if ((f->second.function)(*this, f->second.var, *values, lock_hostgroup)) {
+								exit_after_SetParse = true;
+							} else {
+								unable_to_parse_set_statement(lock_hostgroup);
+								return false;
+							}
+						}
+
 						std::string value1 = *values;
 						std::size_t found_at = value1.find("@");
 						if (found_at != std::string::npos) {

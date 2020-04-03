@@ -145,7 +145,8 @@ enum MySQL_DS_type {
 	MYDS_FRONTEND,
 };
 
-
+// IMPORTANT: The order in this enum depends on the order in
+// mysql_tracked_variables[] array initialization
 enum variable_name {
 	SQL_CHARACTER_SET,
 	SQL_CHARACTER_ACTION,
@@ -985,6 +986,7 @@ extern __thread unsigned int g_seed;
 // field_6: what variable name (or string) will be used when setting it to backend
 // field_7: variable name as displayed in admin , WITHOUT "default_"
 // field_8: default value
+// IMPORTANT: The order of variables in this array should be the same as the order in enum variable_name
 mysql_variable_st mysql_tracked_variables[] {
 	{ SQL_CHARACTER_SET, SETTING_CHARSET,                       false, true, false, (char *)"CHARSET", (char *)"CHARSET", (char *)"UTF8" } , // should be before SQL_CHARACTER_SET_RESULTS
 	{ SQL_CHARACTER_ACTION, NONE,		                        false, false, false, (char *)"action", (char *)"action", (char *)"1" } ,
@@ -1006,7 +1008,7 @@ mysql_variable_st mysql_tracked_variables[] {
 	{ SQL_MAX_JOIN_SIZE, SETTING_MAX_JOIN_SIZE,                 false, false, true, (char *)"MAX_JOIN_SIZE", (char *)"max_join_size", (char *)"18446744073709551615" } ,
 	{ SQL_LOG_BIN, SETTING_SQL_LOG_BIN,                         false, false, true, (char *)"SQL_LOG_BIN", (char *)"sql_log_bin", (char *)"1" } ,
 	{ SQL_WSREP_SYNC_WAIT, SETTING_WSREP_SYNC_WAIT,             false, false, true, (char *)"WSREP_SYNC_WAIT", (char *)"wsrep_sync_wait", (char *)"0" } ,
-	{ SQL_FOREIGN_KEY_CHECKS, SETTING_FOREIGN_KEY_CHECKS,	    	false, false, true, (char *)"FOREIGN_KEY_CHECKS", (char *)"foreign_key_checks", (char *)"1" },
+	{ SQL_FOREIGN_KEY_CHECKS, SETTING_FOREIGN_KEY_CHECKS,	   	false, false, true, (char *)"FOREIGN_KEY_CHECKS", (char *)"foreign_key_checks", (char *)"1" },
 };
 #else
 extern mysql_variable_st mysql_tracked_variables[];
